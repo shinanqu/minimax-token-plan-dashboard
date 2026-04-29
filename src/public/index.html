@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniMax Dashboard</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <h1>MiniMax Dashboard</h1>
+        <span class="subtitle">Token-Plan Monitor</span>
+      </div>
+      <div class="header-actions">
+        <button id="addAccountBtn" class="btn-primary">+ Add Account</button>
+        <select id="themeSelect" class="refresh-select">
+          <option value="gradient">🌈 Gradient</option>
+          <option value="light">☀️ Light</option>
+          <option value="dark">🌙 Dark</option>
+          <option value="system">💻 System</option>
+        </select>
+        <select id="refreshIntervalSelect" class="refresh-select">
+          <option value="0">Manual</option>
+          <option value="10">10s</option>
+          <option value="30" selected>30s</option>
+          <option value="60">1min</option>
+          <option value="300">5min</option>
+          <option value="600">10min</option>
+        </select>
+        <button id="refreshBtn" class="btn-secondary">
+          <span>Refresh</span>
+          <span id="refreshTimerIndicator" class="refresh-timer-indicator"></span>
+        </button>
+      </div>
+    </header>
+
+    <div id="accountsGrid" class="accounts-grid"></div>
+
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">📊</div>
+      <p>No accounts configured</p>
+      <p class="hint">Click "Add Account" to add your first MiniMax account</p>
+    </div>
+
+  </div>
+
+  <!-- Add Account Modal -->
+  <div id="addModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Add New Account</h2>
+      <form id="addAccountForm">
+        <div class="form-group">
+          <label for="accountName">Account Name</label>
+          <input type="text" id="accountName" required placeholder="My Account">
+        </div>
+        <div class="form-group">
+          <label for="accountToken">API Token</label>
+          <input type="password" id="accountToken" required placeholder="Your API Token">
+        </div>
+        <div class="form-group">
+          <label for="accountGroupId">Group ID <span class="optional">(optional)</span></label>
+          <input type="text" id="accountGroupId" placeholder="Group ID">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Add</button>
+          <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
