@@ -1,21 +1,50 @@
-MIT License
+GNU AFFERO GENERAL PUBLIC LICENSE
+Version 3, 19 November 2007
 
-Copyright (c) 2026 foreverXyoung
+Copyright (C) 2026 shinanqu
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Everyone is permitted to copy and distribute verbatim copies of this
+license document, but changing it is not allowed.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+TERMS AND CONDITIONS
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+0. Definitions.
+"This License" refers to version 3 of the GNU Affero General Public License.
+"Copyright" also means copyright-like laws that apply to other kinds of
+works, such as semiconductor masks.
+"The Program" refers to any copyrightable work licensed under this
+License. Each licensee is addressed as "you". "Licensees" and
+"recipients" may be individuals or organizations.
+
+To "modify" a work means to copy from or adapt all or part of the work
+in a fashion requiring copyright permission, excluding compilation.
+
+A "covered work" means either the unmodified Program or a work based
+on the Program.
+
+1. Exception to Section 3 of the GNU GPLv3.
+You may convey a covered work under Section 3 of the GNU GPL Version 3
+notwithstanding the above exception.
+
+2. Conveying Modified Versions.
+If you modify a covered work, you must:
+a) cause the modified work to carry prominent notices stating that you
+   modified it, and giving a relevant date.
+b) cause the work to be licensed under this License, both to the whole
+   work, and to each and every part regardless of who wrote it.
+
+3. No Trademark License.
+This License does not grant any rights to use the names "shinanqu" or
+any contributor's name or logo for any purpose.
+
+4. Patent License.
+You are granted a non-exclusive, worldwide, royalty-free patent license.
+
+5. You are not required to accept this License, since you have not
+signed it. However, nothing else grants you permission to modify or
+distribute the Program or its derivative works.
+
+6. Disclaimer of Warranty.
+THE PROGRAM IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND.
+
+END OF TERMS AND CONDITIONS
