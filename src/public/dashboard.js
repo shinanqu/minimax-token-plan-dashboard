@@ -163,11 +163,8 @@ function renderAccountCard(account, status, isStale = false, errorMessage = null
   const pct = status.usage.percentage;
   const colorClass = pct >= 85 ? 'danger' : pct >= 60 ? 'warning' : 'normal';
 
-  const weeklyPct = status.weekly && !status.weekly.unlimited ? status.weekly.percentage : null;
-  const weeklyColorClass = weeklyPct !== null ? (weeklyPct >= 85 ? 'danger' : weeklyPct >= 60 ? 'warning' : 'normal') : '';
-
-  const expiryDays = status.expiry ? status.expiry.daysRemaining : null;
-  const expiryColorClass = expiryDays !== null ? (expiryDays <= 3 ? 'danger' : expiryDays <= 7 ? 'warning' : 'normal') : '';
+  const weeklyPct = status.weekly?.percentage ?? 0;
+  const weeklyColorClass = weeklyPct >= 85 ? 'danger' : weeklyPct >= 60 ? 'warning' : 'normal';
 
   // 5-hour reset countdown: percentage of time ELAPSED (filling bar)
   const FIVE_HOURS_MS = 5 * 60 * 60 * 1000;
@@ -193,7 +190,7 @@ function renderAccountCard(account, status, isStale = false, errorMessage = null
         <div class="progress-bar ${colorClass}">
           <div class="progress-fill" style="width: ${pct}%"></div>
         </div>
-        <div class="progress-detail">${status.usage.remaining} / ${status.usage.total}</div>
+        <div class="progress-detail">${status.usage.hasCounts ? `${status.usage.remaining} / ${status.usage.total}` : ''}</div>
       </div>
 
       <!-- 5-Hour Reset Countdown Meter -->
@@ -226,7 +223,7 @@ function renderAccountCard(account, status, isStale = false, errorMessage = null
             <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
           </div>
         </div>
-        <div class="progress-detail">${status.weekly.remaining} / ${status.weekly.total}</div>
+        <div class="progress-detail">${status.weekly.hasCounts ? `${status.weekly.remaining} / ${status.weekly.total}` : ''}</div>
       </div>
 
       <!-- Weekly Reset Countdown Meter -->
@@ -245,13 +242,6 @@ function renderAccountCard(account, status, isStale = false, errorMessage = null
           </div>
         </div>
         <div class="progress-detail">${Math.round(100 - weeklyResetElapsedPct)}% until reset</div>
-      </div>
-      ` : ''}
-
-      ${expiryDays !== null ? `
-      <div class="expiry-info ${expiryColorClass}">
-        <span>${t('expires')}</span>
-        <span>${status.expiry.text}</span>
       </div>
       ` : ''}
     </div>

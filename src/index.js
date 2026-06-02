@@ -38,11 +38,8 @@ app.get('/api/status/:accountId', async (req, res) => {
   try {
     const api = new MinimaxAPI(account.token, account.groupId);
     const lang = configManager.config.settings?.language || 'zh-CN';
-    const [usageData, subscriptionData] = await Promise.all([
-      api.getUsageStatus(),
-      api.getSubscriptionDetails()
-    ]);
-    const parsedData = api.parseUsageData(usageData, subscriptionData, lang);
+    const usageData = await api.getUsageStatus();
+    const parsedData = api.parseUsageData(usageData, lang);
     const models = api.parseAllModels(usageData);
     res.json({ ...parsedData, models });
   } catch (error) {
