@@ -155,28 +155,49 @@ async function refreshAllAccounts() {
 
 }
 
+// Smooth color gradient for usage bars: green (0%) → yellow (50%) → red (100%)
+// Interpolated in HSL space so the transitions feel natural.
+function getUsageColor(pct) {
+  const t = Math.max(0, Math.min(100, pct)) / 100;
+  const stops = [
+    { p: 0,   h: 120, s: 38,  l: 49 }, // #4caf50 green
+    { p: 0.5, h:  36, s: 100, l: 50 }, // #ff9800 yellow
+    { p: 1,   h:   4, s: 89,  l: 58 }  // #f44336 red
+  ];
+  let i = 0;
+  while (i < stops.length - 1 && stops[i + 1].p < t) i++;
+  const a = stops[i];
+  const b = stops[Math.min(i + 1, stops.length - 1)];
+  const lt = a.p === b.p ? 0 : (t - a.p) / (b.p - a.p);
+  const h = a.h + lt * (b.h - a.h);
+  const s = a.s + lt * (b.s - a.s);
+  const l = a.l + lt * (b.l - a.l);
+  return `hsl(${h.toFixed(1)}, ${s.toFixed(1)}%, ${l.toFixed(1)}%)`;
+}
+
+// Reset bars are always blue, regardless of elapsed time.
+const RESET_BAR_COLOR = '#2196f3';
+
 function renderAccountCard(account, status, isStale = false, errorMessage = null) {
   const grid = document.getElementById('accountsGrid');
   const card = document.createElement('div');
   card.className = 'account-card plan-hero' + (isStale ? ' stale' : '');
 
   const pct = status.usage.percentage;
-  const colorClass = pct >= 85 ? 'danger' : pct >= 60 ? 'warning' : 'normal';
+  const usageColor = getUsageColor(pct);
 
   const weeklyPct = status.weekly?.percentage ?? 0;
-  const weeklyColorClass = weeklyPct >= 85 ? 'danger' : weeklyPct >= 60 ? 'warning' : 'normal';
+  const weeklyUsageColor = getUsageColor(weeklyPct);
 
   // 5-hour reset countdown: percentage of time ELAPSED (filling bar)
   const FIVE_HOURS_MS = 5 * 60 * 60 * 1000;
   const resetRemainingMs = status.remaining?.ms || 0;
   const resetElapsedPct = Math.min(100, Math.max(0, ((FIVE_HOURS_MS - resetRemainingMs) / FIVE_HOURS_MS) * 100));
-  const resetColorClass = resetElapsedPct >= 80 ? 'danger' : resetElapsedPct >= 60 ? 'warning' : 'normal';
 
   // Weekly reset countdown: percentage of time ELAPSED (filling bar)
   const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
   const weeklyRemainingMs = status.weekly?.ms || 0;
   const weeklyResetElapsedPct = Math.min(100, Math.max(0, ((WEEK_MS - weeklyRemainingMs) / WEEK_MS) * 100));
-  const weeklyResetColorClass = weeklyResetElapsedPct >= 80 ? 'danger' : weeklyResetElapsedPct >= 60 ? 'warning' : 'normal';
 
   card.innerHTML = `
     ${isStale && errorMessage ? `<div class="error-banner">Failed: ${escapeHtml(errorMessage)} (showing cached data)</div>` : ''}
@@ -185,10 +206,10 @@ function renderAccountCard(account, status, isStale = false, errorMessage = null
       <div class="progress-section">
         <div class="progress-header">
           <span class="progress-label">5 hour usage</span>
-          <span class="progress-value ${colorClass}">${pct}%</span>
+          <span class="progress-value">${pct}%</span>
         </div>
-        <div class="progress-bar ${colorClass}">
-          <div class="progress-fill" style="width: ${pct}%"></div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${pct}%; background: ${usageColor}"></div>
         </div>
         <div class="progress-detail">${status.usage.hasCounts ? `${status.usage.remaining} / ${status.usage.total}` : ''}</div>
       </div>
@@ -197,10 +218,10 @@ function renderAccountCard(account, status, isStale = false, errorMessage = null
       <div class="progress-section">
         <div class="progress-header">
           <span class="progress-label">${t('resetIn')}</span>
-          <span class="progress-value ${resetColorClass}">${status.remaining.text}</span>
+          <span class="progress-value">${status.remaining.text}</span>
         </div>
-        <div class="progress-bar ${resetColorClass}">
-          <div class="progress-fill" style="width: ${resetElapsedPct}%"></div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${resetElapsedPct}%; background: ${RESET_BAR_COLOR}"></div>
         </div>
         <div class="progress-detail">${Math.round(100 - resetElapsedPct)}% until reset</div>
       </div>
@@ -212,10 +233,10 @@ function renderAccountCard(account, status, isStale = false, errorMessage = null
       <div class="progress-section">
         <div class="progress-header">
           <span class="progress-label">Weekly usage</span>
-          <span class="progress-value ${weeklyColorClass}">${weeklyPct}%</span>
+          <span class="progress-value">${weeklyPct}%</span>
         </div>
-        <div class="progress-bar-10 ${weeklyColorClass}">
-          <div class="progress-fill" style="width: ${weeklyPct}%"></div>
+        <div class="progress-bar-10">
+          <div class="progress-fill" style="width: ${weeklyPct}%; background: ${weeklyUsageColor}"></div>
           <div class="dividers">
             <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
           </div>
@@ -230,10 +251,10 @@ function renderAccountCard(account, status, isStale = false, errorMessage = null
       <div class="progress-section">
         <div class="progress-header">
           <span class="progress-label">Weekly reset in</span>
-          <span class="progress-value ${weeklyResetColorClass}">${status.weekly.text}</span>
+          <span class="progress-value">${status.weekly.text}</span>
         </div>
-        <div class="progress-bar-7day ${weeklyResetColorClass}">
-          <div class="progress-fill" style="width: ${weeklyResetElapsedPct}%"></div>
+        <div class="progress-bar-7day">
+          <div class="progress-fill" style="width: ${weeklyResetElapsedPct}%; background: ${RESET_BAR_COLOR}"></div>
           <div class="dividers">
             <span></span><span></span><span></span><span></span><span></span><span></span>
           </div>
