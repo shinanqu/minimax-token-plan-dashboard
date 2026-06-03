@@ -155,14 +155,18 @@ async function refreshAllAccounts() {
 
 }
 
-// Smooth color gradient for usage bars: green (0%) → yellow (50%) → red (100%)
-// Interpolated in HSL space so the transitions feel natural.
+// Smooth color gradient for usage bars:
+// 0-50%: solid green (held)
+// 50-75%: green → yellow
+// 75-100%: yellow → red
+// At 50% the bar is still fully green; the gradient starts after that.
 function getUsageColor(pct) {
   const t = Math.max(0, Math.min(100, pct)) / 100;
   const stops = [
-    { p: 0,   h: 120, s: 38,  l: 49 }, // #4caf50 green
-    { p: 0.5, h:  36, s: 100, l: 50 }, // #ff9800 yellow
-    { p: 1,   h:   4, s: 89,  l: 58 }  // #f44336 red
+    { p: 0,    h: 120, s: 38,  l: 49 }, // #4caf50 green
+    { p: 0.5,  h: 120, s: 38,  l: 49 }, // green (held through 50%)
+    { p: 0.75, h:  36, s: 100, l: 50 }, // #ff9800 yellow
+    { p: 1,    h:   4, s: 89,  l: 58 }  // #f44336 red
   ];
   let i = 0;
   while (i < stops.length - 1 && stops[i + 1].p < t) i++;
