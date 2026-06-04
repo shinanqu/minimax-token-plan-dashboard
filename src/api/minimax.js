@@ -1,5 +1,7 @@
 const axios = require('axios');
 const https = require('https');
+const { withRetry } = require('./retry');
+const { toUserMessage } = require('./error-messages');
 
 const httpsAgent = new https.Agent({
   keepAlive: true,
@@ -27,42 +29,41 @@ class MinimaxAPI {
     }
 
     try {
-      const response = await axios.get(
-        'https://www.minimax.io/v1/token_plan/remains',
-        {
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-            Accept: 'application/json'
-          },
-          timeout: 10000,
-          httpsAgent
-        }
+      const data = await withRetry(
+        async ({ signal }) => {
+          const response = await axios.get(
+            'https://www.minimax.io/v1/token_plan/remains',
+            {
+              headers: {
+                Authorization: `Bearer ${this.token}`,
+                Accept: 'application/json'
+              },
+              timeout: 5000,
+              httpsAgent,
+              signal
+            }
+          );
+
+          // Validate API envelope. base_resp.status_code === 0 means success;
+          // anything else is an API-level error and we should not try to parse it.
+          const baseResp = response.data?.base_resp;
+          if (baseResp && baseResp.status_code !== 0) {
+            throw new Error(
+              `MiniMax API error (${baseResp.status_code}): ${baseResp.status_msg || 'unknown error'}`
+            );
+          }
+
+          return response.data;
+        },
+        { maxAttempts: 3, baseDelayMs: 300, maxDelayMs: 2000, timeoutMs: 5000 }
       );
 
-      // Validate API envelope. base_resp.status_code === 0 means success;
-      // anything else is an API-level error and we should not try to parse it.
-      const baseResp = response.data?.base_resp;
-      if (baseResp && baseResp.status_code !== 0) {
-        throw new Error(
-          `MiniMax API error (${baseResp.status_code}): ${baseResp.status_msg || 'unknown error'}`
-        );
-      }
-
-      this.cache.data = response.data;
+      this.cache.data = data;
       this.cache.timestamp = now;
-      return response.data;
+      return data;
     } catch (error) {
-      if (error.response?.status === 401) {
-        throw new Error('Invalid token or unauthorized.');
-      }
-      if (error.code === 'ECONNABORTED') {
-        throw new Error('Request timeout.');
-      }
-      // Pass our own clean errors through without re-wrapping.
-      if (error.message?.startsWith('MiniMax API error')) {
-        throw error;
-      }
-      throw new Error(`API request failed: ${error.message}`);
+      const friendly = toUserMessage(error);
+      throw new Error(friendly);
     }
   }
 
