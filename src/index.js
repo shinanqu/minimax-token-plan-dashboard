@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const http = require('http');
+const https = require('https');
 const express = require('express');
 const path = require('path');
 const ConfigManager = require('./config/config-manager');
@@ -67,11 +68,57 @@ server.listen(PORT, () => {
   `);
 });
 
+const dnsKeepalive = setupDnsKeepalive();
+
 // Graceful shutdown
 process.on('SIGINT', () => {
   console.log('\nShutting down...');
+  clearInterval(dnsKeepalive);
   server.close(() => {
     console.log('Server closed');
     process.exit(0);
   });
 });
+
+// DNS keepalive: periodically HEAD-ping the API host so the OS DNS cache
+// stays warm. Prevents cold-DNS hiccups (getaddrinfo ENOTFOUND) on the
+// first real request after a long idle period. Never throws, never
+// crashes the server.
+function setupDnsKeepalive() {
+  const KEEPALIVE_HOST = 'www.minimax.io';
+  const KEEPALIVE_PATH = '/';
+  const KEEPALIVE_INTERVAL_MS = 30000;
+  const KEEPALIVE_TIMEOUT_MS = 5000;
+
+  function ping() {
+    let req;
+    try {
+      req = https.request(
+        { method: 'HEAD', host: KEEPALIVE_HOST, path: KEEPALIVE_PATH, timeout: KEEPALIVE_TIMEOUT_MS }
+      );
+
+      req.on('response', () => {
+        req.destroy();
+      });
+
+      req.on('timeout', () => {
+        req.destroy();
+        console.error('[keepalive] ping failed: timeout after ' + KEEPALIVE_TIMEOUT_MS + 'ms');
+      });
+
+      req.on('error', (err) => {
+        req.destroy();
+        console.error('[keepalive] ping failed:', err.message);
+      });
+
+      req.end();
+    } catch (err) {
+      if (req) {
+        try { req.destroy(); } catch (_) { /* swallow */ }
+      }
+      console.error('[keepalive] ping failed:', err.message);
+    }
+  }
+
+  return setInterval(ping, KEEPALIVE_INTERVAL_MS);
+}
